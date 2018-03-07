@@ -19,9 +19,9 @@ public class ClienteController {
 		this.clienteService = clienteService;
 	}
 
-	@GetMapping(path = "/{id}/saque/{valor}")
-	public ResponseEntity<Saque> saca(@PathVariable Long id, @PathVariable int valor) {
-		return ResponseEntity.status(HttpStatus.OK).body(clienteService.sacaValor(id, valor));
+	@GetMapping(path = "/{id}/saque/{valorSaque}")
+	public ResponseEntity<Saque> saca(@PathVariable Long id, @PathVariable int valorSaque) {
+		return ResponseEntity.status(HttpStatus.OK).body(clienteService.sacaValor(id, valorSaque));
 	}
 
 }
