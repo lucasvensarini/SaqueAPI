@@ -1,7 +1,5 @@
 package br.com.lcv.cliente;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +15,13 @@ public class ClienteService {
 	private static final String MENSAGEM_CLIENTE_NAO_ENCONTRADO = "Cliente não encontrado";
 	private static final String MENSAGEM_SALDO_INSUFICIENTE = "Saldo insuficiente. Saldo = %d";
 
-	private final List<Integer> notasDisponiveis = Arrays.asList(100, 50, 20, 10);
-
 	private ClienteRepository clienteRepository;
+	private CalculadoraNotas CalculadoraNotas;
 
 	@Autowired
-	public ClienteService(ClienteRepository clienteRepository) {
+	public ClienteService(ClienteRepository clienteRepository, CalculadoraNotas CalculadoraNotas) {
 		this.clienteRepository = clienteRepository;
+		this.CalculadoraNotas = CalculadoraNotas;
 	}
 
 	public Saque sacaValor(Long id, int valorSaque) {
@@ -31,7 +29,7 @@ public class ClienteService {
 		Cliente cliente = clienteRepository.findOne(id);
 		if (cliente != null) {
 			if (permiteSaque(cliente, valorSaque)) {
-				List<InformacaoSaque> informacoesSaque = defineQuantidadeNotas(valorSaque);
+				List<InformacaoSaque> informacoesSaque = CalculadoraNotas.defineQuantidadeNotas(valorSaque);
 				atualizaSaldo(cliente, valorSaque);
 				return new Saque(cliente, informacoesSaque);
 			}
@@ -51,28 +49,6 @@ public class ClienteService {
 			return true;
 		}
 		return false;
-	}
-
-	private List<InformacaoSaque> defineQuantidadeNotas(int valorSaque) {
-		synchronized (this) {
-			List<InformacaoSaque> informacoesSaque = new ArrayList<>();
-
-			for (int i = 0; i < notasDisponiveis.size(); i++) {
-				int notaCorrente = notasDisponiveis.get(i);
-				int quantidadeNotas = 0;
-				while (valorSaque >= notaCorrente) {
-					quantidadeNotas++;
-					valorSaque -= notaCorrente;
-				}
-				if (quantidadeNotas > 0) {
-					informacoesSaque.add(new InformacaoSaque(quantidadeNotas, notaCorrente));
-				}
-				if (valorSaque == 0) {
-					break;
-				}
-			}
-			return informacoesSaque;
-		}
 	}
 
 	private void atualizaSaldo(Cliente cliente, int valorSaque) {

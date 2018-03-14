@@ -42,6 +42,8 @@ public class ClienteServicesTest {
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/clientes/100/saque/20")).andDo(MockMvcResultHandlers.print())
 				.andExpect(MockMvcResultMatchers.status().isOk());
+		
+		Mockito.verify(service, Mockito.timeout(1)).sacaValor(100L, 20);
 	}
 	
 }
